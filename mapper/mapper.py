@@ -18,5 +18,16 @@ command_handlers.update({
     "EXPIRE": BaseCommandHandler.handle_expire,
     "TTL": BaseCommandHandler.handle_ttl,
     "LPUSH": Listhandler.handle_lpush,
-    "RPUSH": Listhandler.handle_rpush
+    "RPUSH": Listhandler.handle_rpush,
+    "LPOP": Listhandler.handle_lpop,
+    "RPOP": Listhandler.handle_rpop,
+    "LRANGE": Listhandler.handle_lrange,
+    "LLEN": Listhandler.handle_llen,
+    "LTRIM": Listhandler.handle_ltrim,
+    "LINDEX": Listhandler.handle_lindex,
+    "LSET" : Listhandler.handle_lset,
+    "LREM": Listhandler.handle_lrem,
+    "BRPOP": Listhandler.handle_brpop,
+    "BLPOP": Listhandler.handle_blpop,
+    "RPOPLPUSH": Listhandler.handle_rpoplpush
 })

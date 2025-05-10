@@ -35,10 +35,10 @@ class Listhandler:
         if len(cmd_parts) != 2:
             return "-ERR usage : LPOP key"
         key = cmd_parts[1]
-
+        print(type(store[key]))
         if key not in store:
             return "-ERR : Key not found"
-        if isinstance(store[key],list):
+        if not isinstance(store[key],list):
             return "-ERR : WRONGTYPE Operation against a key holding the wrong kind of value"
 
         popped_item = store[key].pop(0) 
@@ -53,7 +53,7 @@ class Listhandler:
 
         if key not in store:
             return "-ERR : Key not found"
-        if isinstance(store[key],list):
+        if not isinstance(store[key],list):
             return "-ERR : WRONGTYPE Operation against a key holding the wrong kind of value"
 
         popped_item = store[key].pop(-1) 
@@ -93,12 +93,13 @@ class Listhandler:
     def handle_lindex(cmd_parts):
         if len(cmd_parts) != 3:
             return "-ERR usage : LINDEX key index"
-        key, index = cmd_parts[1], cmd_parts[2]
+        key, index_str = cmd_parts[1], cmd_parts[2]
         if key not in store:
             return "-ERR : Key not found"  
         if not isinstance(store[key],list):
             return "-ERR : WRONGTYPE Operation against a key holding the wrong kind of value"       
         try:
+            index = int(index_str)
             return store[key][index] 
         except:
             return "-ERR : Invalid index" 
@@ -107,12 +108,13 @@ class Listhandler:
     def handle_lset(cmd_parts):
         if len(cmd_parts) != 4:
             return "-ERR usage : LSET key index value"
-        key, index, value = cmd_parts[1], cmd_parts[2], cmd_parts[3]
+        key, index_str, value = cmd_parts[1], cmd_parts[2], cmd_parts[3]
         if key not in store:
             return "-ERR : Key not found"  
         if not isinstance(store[key],list):
             return "-ERR : WRONGTYPE Operation against a key holding the wrong kind of value"       
         try:
+            index = int(index_str)
             store[key][index] = value
             return ":1" 
         except:
@@ -122,13 +124,13 @@ class Listhandler:
     def handle_ltrim(cmd_parts):
         if len(cmd_parts) != 4:
             return "-ERR usage : LTRIM key start stop"
-        key, start, stop = cmd_parts[1], cmd_parts[2], cmd_parts[3]
+        key, start_str, stop_str = cmd_parts[1], cmd_parts[2], cmd_parts[3]
         if key not in store:
             return "-ERR : Key not found"  
         if not isinstance(store[key],list):
             return "-ERR : WRONGTYPE Operation against a key holding the wrong kind of value"       
         try:
-            store[key] = store[key][start, stop]
+            store[key] = store[key][int(start_str):int(stop_str)+1]
             return ":1" 
         except:
             return "-ERR : Invalid index or value"  
@@ -146,42 +148,75 @@ class Listhandler:
             stop_count = int(count_str)
         except ValueError:
             return "-ERR: count must be an integer"
+
+        removed_count = 0
         new_list = []
+        
         if stop_count == 0:
             for val in store[key]:
                 if val == value:
-                    continue
-                new_list.append(val)
-            return ":1"
+                    removed_count += 1
+                else:
+                    new_list.append(val)
+        
         elif stop_count > 0:
-            occurence_count = 0
             for val in store[key]:
-                if val == value:
-                    if occurence_count == stop_count:
-                        break
-                    stop_count += 1
-                    continue
-                new_list.append(val)
-            return ":1"
-        elif stop_count < 0:
-            occurence_count = 0
-            for val in (store[key]).reverse():
-                if val == value:
-                    if occurence_count == stop_count:
-                        break
-                    stop_count += 1
-                    continue
-                new_list.append(val)
-            return ":1"
+                if val == value and removed_count < stop_count:
+                    removed_count += 1
+                else:
+                    new_list.append(val)
+        else:
+            for val in reversed(store[key]):
+                if val == value and removed_count < abs(stop_count):
+                    removed_count += 1
+                else:
+                    new_list.append(val)
+            new_list.reverse()
+            store[key] = new_list
+            return removed_count
+        
+        store[key] = new_list
+        return removed_count
 
 
     def handle_blpop(cmd_parts):
-        pass
-
+        if len(cmd_parts) != 3:
+            return "-ERR usage : BLPOP key [key...] timeout"
+        key, timeout = cmd_parts[1], cmd_parts[2]
+        if key not in store:
+            return "-ERR : Key not found"  
+        if not isinstance(store[key],list):
+            return "-ERR : WRONGTYPE Operation against a key holding the wrong kind of value"          
+        try: 
+            time.sleep(int(timeout))
+            return Listhandler.handle_lpop(['RPOP',cmd_parts[1]])
+        except:
+            return "-ERR : TYPERROR timeout must be an int"
 
     def handle_brpop(cmd_parts):
-        pass
-
+        if len(cmd_parts) != 3:
+            return "-ERR usage : BRPOP key [key...] timeout"
+        key, timeout = cmd_parts[1], cmd_parts[2]
+        if key not in store:
+            return "-ERR : Key not found"  
+        if not isinstance(store[key],list):
+            return "-ERR : WRONGTYPE Operation against a key holding the wrong kind of value"          
+        try:
+            time.sleep(int(timeout))
+            return Listhandler.handle_rpop(['RPOP',cmd_parts[1]])
+        except:
+            return "-ERR : TYPERROR timeout must be an int"
 
     def handle_rpoplpush(cmd_parts):
-        pass
+        if len(cmd_parts) != 3:
+            return "-ERR usage : RPOPLPUSH source destination"
+        source_key, destination_key = cmd_parts[1], cmd_parts[2]
+        if source_key not in store or destination_key not in store:
+            return "-ERR : Key not found"  
+        if not isinstance(store[source_key],list):
+            return "-ERR : WRONGTYPE Operation against a key holding the wrong kind of value"       
+        try:
+            popped_item = Listhandler.handle_rpop(['RPOP',source_key])
+            return Listhandler.handle_lpush(['LPUSH',destination_key, popped_item])
+        except ValueError:
+            return "-ERR - operation failed!"

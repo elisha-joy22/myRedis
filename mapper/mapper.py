@@ -1,5 +1,6 @@
 from commands.core_commands import BaseCommandHandler
 from commands.handlers.lists import Listhandler
+from commands.handlers.hashmap import HashmapHandler
 
 
 
@@ -29,5 +30,18 @@ command_handlers.update({
     "LREM": Listhandler.handle_lrem,
     "BRPOP": Listhandler.handle_brpop,
     "BLPOP": Listhandler.handle_blpop,
-    "RPOPLPUSH": Listhandler.handle_rpoplpush
+    "RPOPLPUSH": Listhandler.handle_rpoplpush,
+    "HGET": HashmapHandler.handle_hget,
+    "HSET": HashmapHandler.handle_hset,
+    "HDEL": HashmapHandler.handle_hdel,
+    "HMGET": HashmapHandler.handle_hmget,
+    "HMSET": HashmapHandler.handle_hmset,
+    "HGETALL": HashmapHandler.handle_hgetall,
+    "HLEN": HashmapHandler.handle_hlen,
+    "HKEYS": HashmapHandler.handle_hkeys,
+    "HVALS": HashmapHandler.handle_hvals,
+    "HEXISTS": HashmapHandler.handle_hexists,
+    "HINCRBY": HashmapHandler.handle_hincrby,
+    "HINCRBYFLOAT": HashmapHandler.handle_hincrbyfloat
+
 })

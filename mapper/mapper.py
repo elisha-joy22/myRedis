@@ -1,6 +1,7 @@
 from commands.core_commands import BaseCommandHandler
 from commands.handlers.lists import Listhandler
 from commands.handlers.hashmap import HashmapHandler
+from commands.handlers.sets import SetHandler
 
 
 
@@ -42,6 +43,19 @@ command_handlers.update({
     "HVALS": HashmapHandler.handle_hvals,
     "HEXISTS": HashmapHandler.handle_hexists,
     "HINCRBY": HashmapHandler.handle_hincrby,
-    "HINCRBYFLOAT": HashmapHandler.handle_hincrbyfloat
-
+    "HINCRBYFLOAT": HashmapHandler.handle_hincrbyfloat,
+    "SADD": SetHandler.handle_sadd,
+    "SREM": SetHandler.handle_srem,
+    "SPOP": SetHandler.handle_spop,
+    "SRANDMEMBER": SetHandler.handle_srandmember,
+    "SMEMBERS": SetHandler.handle_smembers,
+    "SISMEMBER": SetHandler.handle_sismember,
+    "SCARD": SetHandler.handle_scard,
+    "SUNION": SetHandler.handle_sunion,
+    "SINTER": SetHandler.handle_sinter,
+    "SDIFF": SetHandler.handle_sdiff,
+    "SUNIONSTORE": SetHandler.handle_sunionstore,
+    "SINTERSTORE": SetHandler.handle_sinterstore,
+    "SDIFFSTORE": SetHandler.handle_sdiffstore
 })
+
